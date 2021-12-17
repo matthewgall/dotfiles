@@ -1,0 +1,3 @@
+function abusedb {
+    curl -s https://api.findabuse.email/api/v1/$1 | jq -r ".[].contacts.abuse[]"
+}

@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# Globals
+DIRECTORY=$(pwd)
+
+# Capture inputs
+task=$1
+args=$2
+
+case "$task" in
+  "shell" )
+    case "$args" in
+        "bash" )
+            echo "Installing bash configuration"
+            # Backup any files we're going to affect
+            cp $HOME/.bashrc $HOME/.bashrc_backup
+            cp $HOME/.bash_functions $HOME/.bash_functions_backup
+            # Next, remove them
+            rm $HOME/.bashrc $HOME/.bash_functions
+            # And symlink them
+            ln -s $DIRECTORY/shell/bash/bashrc $HOME/.bashrc
+            ln -s $DIRECTORY/shell/bash/functions $HOME/.bash_functions
+            # Done
+            echo "Task completed successfully";;
+    esac;;
+esac
