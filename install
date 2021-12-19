@@ -34,18 +34,28 @@ case "$task" in
     case "$args" in
         "bash" )
             echo "Installing bash configuration"
-            # Backup any files we're going to affect
-            backup "$HOME/.bashrc"
-            backup "$HOME/.bash_aliases"
-            backup "$HOME/.bash_env"
-            backup "$HOME/.bash_functions"
-            # Next, remove them
-            rm $HOME/.bashrc $HOME/.bash_aliases $HOME/.bash_env $HOME/.bash_functions
-            # And symlink them
-            link $DIRECTORY/shell/bash/bashrc $HOME/.bashrc
-            link $DIRECTORY/shell/bash/aliases $HOME/.bash_aliases
-            link $DIRECTORY/shell/bash/env $HOME/.bash_env
-            link $DIRECTORY/shell/bash/functions $HOME/.bash_functions
+            for f in shell/bash/*;
+            do
+                file=$f
+                dest=$(echo $f | sed 's/shell\/bash\///g')
+                
+                if [ $dest = "bashrc" ]; then
+                    dest=$HOME/.bashrc
+                else
+                    dest=$HOME/.bash_$dest
+                fi
+                
+                # First, backup the file (if it exists)
+                if [ -f $dest ]; then
+                    backup $dest
+                fi
+
+                # Now we remove it (but only if the backup exists)
+                rm $dest
+                
+                # And symlink
+                link $file $dest
+            done
             # Done
             echo "Task completed successfully";;
     esac;;
