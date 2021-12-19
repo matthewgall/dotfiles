@@ -3,9 +3,21 @@
 # Globals
 DIRECTORY=$(pwd)
 
-# Capture inputs
+# Inputs
 task=$1
 args=$2
+
+# Functions
+backup() {
+    # Capture the path to backup
+    local path=${1:?Must provide a path to backup}
+    # Create a backup path
+    local backup="$path.backup"
+    # Log
+    echo "Backing up: $path to $backup"
+    # And do the copy
+    cp $path $backup
+}
 
 case "$task" in
   "shell" )
@@ -13,12 +25,14 @@ case "$task" in
         "bash" )
             echo "Installing bash configuration"
             # Backup any files we're going to affect
-            cp $HOME/.bashrc $HOME/.bashrc_backup
-            cp $HOME/.bash_functions $HOME/.bash_functions_backup
+            backup "$HOME/.bashrc"
+            backup "$HOME/.bash_aliases"
+            backup "$HOME/.bash_functions"
             # Next, remove them
-            rm $HOME/.bashrc $HOME/.bash_functions
+            rm $HOME/.bashrc $HOME/.bash_functions $HOME/.bash_aliases
             # And symlink them
             ln -s $DIRECTORY/shell/bash/bashrc $HOME/.bashrc
+            ln -s $DIRECTORY/shell/bash/aliases $HOME/.bash_aliases
             ln -s $DIRECTORY/shell/bash/functions $HOME/.bash_functions
             # Done
             echo "Task completed successfully";;
