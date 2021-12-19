@@ -19,6 +19,16 @@ backup() {
     cp $path $backup
 }
 
+link() {
+    # Capture paths to link
+    local src=${1}
+    local dest=${2}
+    # Log what we're doing
+    echo "Linking $src to $dest"
+    # And symlink
+    ln -s $src $dest
+}
+
 case "$task" in
   "shell" )
     case "$args" in
@@ -27,13 +37,15 @@ case "$task" in
             # Backup any files we're going to affect
             backup "$HOME/.bashrc"
             backup "$HOME/.bash_aliases"
+            backup "$HOME/.bash_env"
             backup "$HOME/.bash_functions"
             # Next, remove them
-            rm $HOME/.bashrc $HOME/.bash_functions $HOME/.bash_aliases
+            rm $HOME/.bashrc $HOME/.bash_aliases $HOME/.bash_env $HOME/.bash_functions
             # And symlink them
-            ln -s $DIRECTORY/shell/bash/bashrc $HOME/.bashrc
-            ln -s $DIRECTORY/shell/bash/aliases $HOME/.bash_aliases
-            ln -s $DIRECTORY/shell/bash/functions $HOME/.bash_functions
+            link $DIRECTORY/shell/bash/bashrc $HOME/.bashrc
+            link $DIRECTORY/shell/bash/aliases $HOME/.bash_aliases
+            link $DIRECTORY/shell/bash/env $HOME/.bash_env
+            link $DIRECTORY/shell/bash/functions $HOME/.bash_functions
             # Done
             echo "Task completed successfully";;
     esac;;
