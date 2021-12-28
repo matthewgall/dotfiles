@@ -1,3 +1,5 @@
 if [ -d ~/.kube/configs ]; then
     export KUBECONFIG=$(for i in $(find $HOME/.kube/configs -iname '*.yaml') ; do echo -n ":$i"; done | cut -c 2-)
 fi
+
+export PATH=$HOME/.local/bin:/usr/local/go/bin:$PATH
