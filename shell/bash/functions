@@ -1,7 +1,60 @@
 function rsnet {
-    ssh ch-s011.rsync.net $@
+    ssh ch-s011.rsync.net "$@"
 }
 
 function abusedb {
     curl -s https://api.findabuse.email/api/v1/$1 | jq -r ".[].contacts.abuse[]"
+}
+
+function mullvadgen {
+    location=${1:-list}
+    content=$(curl -s https://api.mullvad.net/www/relays/all/)
+    
+    # Are we asking for a list of locations
+    if [ $location = "list" ]; then
+	echo -e $content | jq -r '.[] | select(.type=="wireguard") | .hostname'
+        return -1
+    fi
+
+    # We're asking about something specific, so go check
+    data=$(echo -e $content | jq -r ".[] | select(.hostname==\"$1-wireguard\")")
+    
+    # Did we get anything back?
+    if [ -z "$data" ]; then
+        echo "Unable to connect to Mullvad, or you selected a location that does not exist"
+        return -1
+    fi    
+
+    # We did, so now we can interrogate the content for what we need
+    dns=$(echo "193.138.218.74")
+    address=$(echo "10.65.213.43/32,fc00:bbbb:bbbb:bb01::2:d52a/128")
+    publickey=$(echo $data | jq -r .pubkey)
+    privatekey=$(cat $HOME/.wireguard/privatekey)
+    endpoint=$(echo $data | jq -r .ipv4_addr_in)
+
+    # And construct a connection
+    echo -e "[Interface]\nPrivateKey = $privatekey\nDNS = $dns\nAddress = $address\n\n[Peer]\nPublicKey = $publickey\nEndpoint = $endpoint:51820\nAllowedIPs = 0.0.0.0/0,::/0"
+
+}
+
+function aziregen {
+    location=${1:-uk1}
+    content=$(curl -s -d username=$AZIREVPN_USER --data-urlencode password=$AZIREVPN_PASS --data-urlencode pubkey=$(cat $HOME/.wireguard/publickey) "https://api.azirevpn.com/v1/wireguard/connect/$location")
+    status=$(echo $content | jq -r .status)
+
+    # Did we get a successful response?
+    if [ $status = "error" ]; then
+        echo "Unable to connect to AzireVPN, or you selected a location that does not exist"
+        return -1
+    fi
+
+    # We did, so now we can interrogate the content for what we need
+    dns=$(echo $content | jq -r .data.DNS | sed -r 's/\s+//g')
+    address=$(echo $content | jq -r .data.Address | sed -r 's/\s+//g')
+    publickey=$(echo $content | jq -r .data.PublicKey)
+    privatekey=$(cat $HOME/.wireguard/privatekey)
+    endpoint=$(echo $content | jq -r .data.Endpoint)
+
+    # And construct a connection
+    echo -e "[Interface]\nPrivateKey = $privatekey\nDNS = $dns\nAddress = $address\n\n[Peer]\nPublicKey = $publickey\nEndpoint = $endpoint\nAllowedIPs = 0.0.0.0/0,::/0"
 }
