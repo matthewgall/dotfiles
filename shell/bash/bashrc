@@ -131,3 +131,7 @@ fi
 # volta.sh
 export VOLTA_HOME="$HOME/.volta"
 export PATH="$VOLTA_HOME/bin:$PATH"
+
+# fly.io
+export FLYCTL_INSTALL="$HOME//.fly"
+export PATH="$FLYCTL_INSTALL/bin:$PATH"
