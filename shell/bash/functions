@@ -6,6 +6,10 @@ function abusedb {
     curl -s https://api.findabuse.email/api/v1/$1 | jq -r ".[].contacts.abuse[]"
 }
 
+function myip {
+    curl -s ipinfo.io | jq -r '. | "\(.ip) (\(.hostname))"'
+}
+
 function mullvadgen {
     location=${1:-list}
     content=$(curl -s https://api.mullvad.net/www/relays/all/)
