@@ -10,6 +10,16 @@ function myip {
     curl -s ipinfo.io | jq -r '. | "\(.ip) (\(.hostname))"'
 }
 
+function wg-list {
+    sudo ls /etc/wireguard/ | sed 's/\.conf//g'
+}
+function wg-up {
+    sudo wg-quick up "$@"
+}
+function wg-down {
+    sudo wg-quick down "$@"
+}
+
 function mullvadgen {
     location=${1:-list}
     content=$(curl -s https://api.mullvad.net/www/relays/all/)
