@@ -3,6 +3,11 @@ function rsnet {
 }
 
 function abusedb {
+    ip=${1:-blank}
+    if [ $ip = "blank" ]; then
+        echo -e "You must provide an IP address to lookup"
+        return -1
+    fi
     curl -s https://api.findabuse.email/api/v1/$1 | jq -r ".[].contacts.abuse[]"
 }
 
