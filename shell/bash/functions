@@ -10,6 +10,15 @@ function myip {
     curl -s ipinfo.io | jq -r '. | "\(.ip) (\(.hostname))"'
 }
 
+# zonefiles.io
+function zonefiles {
+   term=${1:-token}
+   zid=${2:-1852}
+   dtype=${3:-updatedata}   
+   curl -s "https://zonefiles.io/a/$ZONEFILES_API/$dtype/$zid" | grep "$term" | grep ns.cloudflare.com
+}
+
+# wireguard utilities
 function wg-list {
     sudo ls /etc/wireguard/ | sed 's/\.conf//g'
 }
@@ -20,6 +29,7 @@ function wg-down {
     sudo wg-quick down "$@"
 }
 
+# vpn generators
 function mullvadgen {
     location=${1:-list}
     content=$(curl -s https://api.mullvad.net/www/relays/all/)
