@@ -64,6 +64,18 @@ function wg-down {
     sudo wg-quick down "$@"
 }
 
+# tailscale
+function ts-ip {
+    host=${1:-blank}
+    
+    if [ $host = "blank" ]; then
+        echo -e "You must provide a hostname to lookup"
+        return -1
+    fi
+
+    tailscale status | grep "$host" | cut -d ' ' -f 1
+}
+
 # vpn generators
 function mullvadgen {
     location=${1:-list}
