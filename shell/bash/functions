@@ -23,6 +23,34 @@ function zonefiles {
    curl -s "https://zonefiles.io/a/$ZONEFILES_API/$dtype/$zid" | grep "$term" | grep ns.cloudflare.com
 }
 
+# urlscan.io
+function urlscan {
+    url=${1:-blank}
+    tag=${2:-osint}
+    vis=${3:-public}
+
+    if [ $url = "blank" ]; then
+        echo -e "You must provide a URL to submit"
+        return -1
+    fi
+
+    # Perform lookup
+    data=$(curl -s -X POST "https://urlscan.io/api/v1/scan/" \
+      -H "Content-Type: application/json" \
+      -H "API-Key: $URLSCAN_API" \
+      -d "{\"url\": \"$url\", \"visibility\": \"$vis\", \"tags\": [\"$tag\"]}")
+    status=$(echo $data | jq -r .status)
+
+    # Check for an error code
+    if [ $status = "400" ]; then
+        echo $data | jq -r .description
+        return -1
+    fi
+  
+    # Otherwise, return
+    echo $data | jq .
+}
+
 # wireguard utilities
 function wg-list {
     sudo ls /etc/wireguard/ | sed 's/\.conf//g'
