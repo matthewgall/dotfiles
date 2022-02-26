@@ -1,7 +1,13 @@
+function myip {
+    curl -s ipinfo.io | jq -r '. | "\(.ip) (\(.hostname))"'
+}
+
+# rsync.net
 function rsnet {
     ssh ch-s011.rsync.net "$@"
 }
 
+# findabuse.email
 function abusedb {
     ip=${1:-blank}
     if [ $ip = "blank" ]; then
@@ -9,10 +15,6 @@ function abusedb {
         return -1
     fi
     curl -s https://api.findabuse.email/api/v1/$1 | jq -r ".[].contacts.abuse[]"
-}
-
-function myip {
-    curl -s ipinfo.io | jq -r '. | "\(.ip) (\(.hostname))"'
 }
 
 # zonefiles.io
