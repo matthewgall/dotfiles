@@ -2,9 +2,24 @@ function myip {
     curl -s ipinfo.io | jq -r '. | "\(.ip) (\(.hostname))"'
 }
 
+# route to backup connection
+function routeto-backup {
+    iface=${1:-wlp2s0}
+    sudo route add default gw 192.168.1.25 $iface
+}
+function routeto-primary {
+    iface=${1:-wlp2s0}
+    sudo route del default gw 192.168.1.25 $iface
+}
+
 # rsync.net
 function rsnet {
     ssh ch-s011.rsync.net "$@"
+}
+
+# supabase.io
+function psql-phishing {
+    psql $SUPABASE_PHISHINGFYI_DB
 }
 
 # findabuse.email
@@ -18,11 +33,23 @@ function abusedb {
 }
 
 # zonefiles.io
+function zonefiles-get {
+   zid=${1:-1}
+   dtype=${2:-updatedata}
+   curl -s "https://zonefiles.io/a/$ZONEFILES_API/$dtype/$zid"
+}
 function zonefiles {
-   term=${1:-token}
-   zid=${2:-1852}
-   dtype=${3:-updatedata}   
-   curl -s "https://zonefiles.io/a/$ZONEFILES_API/$dtype/$zid" | grep "$term" | grep ns.cloudflare.com
+   zid=${1:-1}
+   dtype=${2:-updatedata}
+   term=${3:-token}
+   zonefiles-get $zid $dtype | grep "$term"
+}
+function zonefiles-csv {
+   zid=${1:-1}
+   dtype=${2:-updatedata}
+   file=${3:-updatedata.csv}
+   echo "zone_name,nameservers,ip,geo_ip,geo_html,server,hostname,email,rank_alexa,phone,rank_majestic,date_discovery" | tee $file
+   zonefiles-get $zid $dtype >> $file
 }
 
 # urlscan.io
@@ -54,14 +81,16 @@ function urlscan {
 }
 
 # wireguard utilities
-function wg-list {
-    sudo ls /etc/wireguard/ | sed 's/\.conf//g'
-}
-function wg-up {
-    sudo wg-quick up "$@"
-}
-function wg-down {
-    sudo wg-quick down "$@"
+function wg-util {
+    action=${1:-list}
+
+    if [ $action = "list" ]; then
+        sudo ls /etc/wireguard/ | sed 's/\.conf//g'
+    elif [ $action = "up" ]; then
+        sudo wg-quick up "$@"
+    elif [ $action = "down" ]; then
+        sudo wg-quick down "$@"
+    fi
 }
 
 # tailscale
