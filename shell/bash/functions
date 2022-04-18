@@ -1,6 +1,10 @@
 function myip {
     curl -s ipinfo.io | jq -r '. | "\(.ip) (\(.hostname))"'
 }
+function ptr {
+    ip=${1}
+    dig +short -x $ip | sed 's/.$//g'
+}
 
 # route to backup connection
 function routeto-backup {
@@ -15,11 +19,6 @@ function routeto-primary {
 # rsync.net
 function rsnet {
     ssh ch-s011.rsync.net "$@"
-}
-
-# supabase.io
-function psql-phishing {
-    psql $SUPABASE_PHISHINGFYI_DB
 }
 
 # findabuse.email
