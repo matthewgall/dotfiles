@@ -138,3 +138,9 @@ export PATH="$FLYCTL_INSTALL/bin:$PATH"
 
 # poetry
 export PATH="$HOME/.poetry/bin:$PATH"
+
+# go
+export PATH="$HOME/go/bin:$PATH"
+
+# direnv
+eval "$(direnv hook bash)"
