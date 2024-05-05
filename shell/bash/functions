@@ -82,38 +82,6 @@ function ts-ip {
     tailscale status | grep "$host" | cut -d ' ' -f 1
 }
 
-# vpn generators
-function mullvadgen {
-    location=${1:-list}
-    content=$(curl -s https://api.mullvad.net/www/relays/all/)
-    
-    # Are we asking for a list of locations
-    if [ $location = "list" ]; then
-	echo -e $content | jq -r '.[] | select(.type=="wireguard") | .hostname'
-        return -1
-    fi
-
-    # We're asking about something specific, so go check
-    data=$(echo -e $content | jq -r ".[] | select(.hostname==\"$1-wireguard\")")
-    
-    # Did we get anything back?
-    if [ -z "$data" ]; then
-        echo "Unable to connect to Mullvad, or you selected a location that does not exist"
-        return -1
-    fi    
-
-    # We did, so now we can interrogate the content for what we need
-    dns=$(echo "193.138.218.74")
-    address=$(echo "10.65.213.43/32,fc00:bbbb:bbbb:bb01::2:d52a/128")
-    publickey=$(echo $data | jq -r .pubkey)
-    privatekey=$(cat $HOME/.wireguard/privatekey)
-    endpoint=$(echo $data | jq -r .ipv4_addr_in)
-
-    # And construct a connection
-    echo -e "[Interface]\nPrivateKey = $privatekey\nDNS = $dns\nAddress = $address\n\n[Peer]\nPublicKey = $publickey\nEndpoint = $endpoint:51820\nAllowedIPs = 0.0.0.0/0,::/0"
-
-}
-
 # phishing.fyi
 function phishing {
     url=${1:-blank}
