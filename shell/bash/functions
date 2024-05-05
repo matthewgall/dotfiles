@@ -29,26 +29,6 @@ function abusedb {
     curl -s https://api.findabuse.email/api/v1/$1 | jq -r ".[].contacts.abuse[]"
 }
 
-# zonefiles.io
-function zonefiles-get {
-   zid=${1:-1}
-   dtype=${2:-updatedata}
-   curl -s "https://zonefiles.io/a/$ZONEFILES_API/$dtype/$zid"
-}
-function zonefiles {
-   zid=${1:-1}
-   dtype=${2:-updatedata}
-   term=${3:-token}
-   zonefiles-get $zid $dtype | grep "$term"
-}
-function zonefiles-csv {
-   zid=${1:-1}
-   dtype=${2:-updatedata}
-   file=${3:-updatedata.csv}
-   echo "zone_name,nameservers,ip,geo_ip,geo_html,server,hostname,email,rank_alexa,phone,rank_majestic,date_discovery" | tee $file
-   zonefiles-get $zid $dtype >> $file
-}
-
 # urlscan.io
 function urlscan {
     url=${1:-blank}
