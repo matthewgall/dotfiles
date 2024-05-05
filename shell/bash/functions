@@ -5,15 +5,13 @@ function ptr {
     ip=${1}
     dig +short -x $ip | sed 's/.$//g'
 }
-
-# route to backup connection
-function routeto-backup {
-    iface=${1:-wlp2s0}
-    sudo route add default gw 192.168.1.25 $iface
+function npm-update {
+    npm outdated | awk 'NR>1 {print $1"@"$4}' | xargs npm install
 }
-function routeto-primary {
-    iface=${1:-wlp2s0}
-    sudo route del default gw 192.168.1.25 $iface
+
+# weron
+function weronmgr {
+    weron manager --raddr $WERON_ADDR --api-password $WERON_MGR_PASSWORD $@
 }
 
 # rsync.net
@@ -136,24 +134,27 @@ function mullvadgen {
 
 }
 
-function aziregen {
-    location=${1:-uk1}
-    content=$(curl -s -d username=$AZIREVPN_USER --data-urlencode password=$AZIREVPN_PASS --data-urlencode pubkey=$(cat $HOME/.wireguard/publickey) "https://api.azirevpn.com/v1/wireguard/connect/$location")
-    status=$(echo $content | jq -r .status)
+# phishing.fyi
+function phishing {
+    url=${1:-blank}
 
-    # Did we get a successful response?
-    if [ $status = "error" ]; then
-        echo "Unable to connect to AzireVPN, or you selected a location that does not exist"
+    if [ $url = "blank" ]; then
+        echo "No URL has been provided, unable to submit to phishing.fyi"
         return -1
     fi
 
-    # We did, so now we can interrogate the content for what we need
-    dns=$(echo $content | jq -r .data.DNS | sed -r 's/\s+//g')
-    address=$(echo $content | jq -r .data.Address | sed -r 's/\s+//g')
-    publickey=$(echo $content | jq -r .data.PublicKey)
-    privatekey=$(cat $HOME/.wireguard/privatekey)
-    endpoint=$(echo $content | jq -r .data.Endpoint)
+    data=$(curl -s https://phishing.fyi/submit -X POST --data "url=$url")
+    echo $data
+}
 
-    # And construct a connection
-    echo -e "[Interface]\nPrivateKey = $privatekey\nDNS = $dns\nAddress = $address\n\n[Peer]\nPublicKey = $publickey\nEndpoint = $endpoint\nAllowedIPs = 0.0.0.0/0,::/0"
+# throwaway.cloud
+function disposable {
+    email=${1:-blank}
+
+    if [ $email = "blank" ]; then
+        echo "No e-mail address has been provided"
+        return -1
+    fi
+
+    curl -s "https://throwaway.cloud/api/v1/email/$1" | jq -r '.isDisposable'
 }
