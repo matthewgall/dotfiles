@@ -16,8 +16,8 @@ HISTCONTROL=ignoreboth
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=10
-HISTFILESIZE=10
+HISTSIZE=500
+HISTFILESIZE=500
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -144,3 +144,9 @@ export PATH="$HOME/go/bin:$PATH"
 
 # direnv
 eval "$(direnv hook bash)"
+
+# rustup
+. "$HOME/.cargo/env"
+
+# radicle
+export PATH="$PATH:/home/matthew/.radicle/bin"
