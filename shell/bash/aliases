@@ -1,0 +1,2 @@
+alias wrangler='npx wrangler'
+alias pbcopy="xclip -sel clip"
